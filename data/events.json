@@ -8,14 +8,6 @@
       "city": "Brisbane",
       "tickets": "https://www.eventbrite.com.au/e/georgina-humphries-rogue-tickets-1990457678498",
       "status": "On sale"
-    },
-    {
-      "title": "Rogue 2",
-      "date": "2026-06-21",
-      "venue": "Test Venue"
-    },
-    {
-      "date": "2026-06-21"
     }
   ]
 }
