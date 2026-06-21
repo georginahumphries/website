@@ -1,0 +1,44 @@
+media:
+  input: assets
+  output: /assets
+content:
+  - name: shows
+    label: Shows & tour dates
+    type: file
+    path: data/events.json
+    fields:
+      - name: shows
+        label: Shows
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{title} — {city} ({date})"
+        fields:
+          - name: title
+            label: Show title
+            type: string
+          - name: date
+            label: Date
+            type: date
+            options:
+              format: yyyy-MM-dd
+          - name: time
+            label: Time (e.g. 8:30pm)
+            type: string
+          - name: venue
+            label: Venue
+            type: string
+          - name: city
+            label: City / town
+            type: string
+          - name: tickets
+            label: Ticket link (full URL, leave blank if none)
+            type: string
+          - name: status
+            label: Status
+            type: select
+            options:
+              values:
+                - On sale
+                - Sold out

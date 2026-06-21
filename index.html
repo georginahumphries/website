@@ -92,13 +92,8 @@
       <a class="btn ghost" href="#flock">🔔 Get notified of new dates</a>
     </div>
 
-    <!-- TOUR DATES (rendered from the events data below — this is what Georgie edits in the admin panel) -->
+    <!-- TOUR DATES (rendered from data/events.json — this is what Georgie edits in the admin panel) -->
     <div class="tour" id="tour-dates"></div>
-    <script type="application/json" id="events-data">
-    [
-      {"date":"2026-07-09","time":"8:30pm","title":"ROGUE","venue":"Good Chat Comedy Club","city":"Brisbane","tickets":"https://www.eventbrite.com.au/e/georgina-humphries-rogue-tickets-1990457678498","status":"On sale"}
-    ]
-    </script>
 
     <div class="feature">
       <div class="poster-photo tilt">
@@ -319,25 +314,28 @@
   menu.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>menu.classList.remove("open")));
   document.getElementById("yr").textContent=new Date().getFullYear();
 
-  // Render tour dates from the events data (the part the admin panel edits)
+  // Render tour dates from data/events.json (the part Georgie edits in the admin panel)
   (function(){
-    var el=document.getElementById("tour-dates"); if(!el) return;
-    var data=[]; try{data=JSON.parse(document.getElementById("events-data").textContent);}catch(e){}
-    var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    var today=new Date(); today.setHours(0,0,0,0);
-    var up=data.filter(function(e){return new Date(e.date+"T00:00:00")>=today;})
-               .sort(function(a,b){return new Date(a.date)-new Date(b.date);});
-    if(!up.length){el.innerHTML='<div class="tour-empty">New shows announced soon — <a href="#flock">join the mailing list</a> to hear first.</div>';return;}
-    el.innerHTML=up.map(function(e){
-      var d=new Date(e.date+"T00:00:00");
-      var tix=e.tickets?('<a class="btn sm tix" href="'+e.tickets+'" target="_blank" rel="noopener">Tickets</a>'):"";
-      if(e.status&&/sold/i.test(e.status)) tix='<span class="tix soldout">Sold out</span>';
-      return '<div class="tour-row">'
-        +'<div class="date"><span class="d">'+d.getDate()+'</span><span class="m">'+months[d.getMonth()]+'</span><span class="y">'+d.getFullYear()+'</span></div>'
-        +'<div class="meta"><div class="show">'+e.title+(e.time?" · "+e.time:"")+'</div>'
-        +'<div class="venue">'+[e.venue,e.city].filter(Boolean).join(", ")+'</div></div>'
-        +tix+'</div>';
-    }).join("");
+    var el=document.getElementById('tour-dates'); if(!el) return;
+    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var empty='<div class="tour-empty">New shows announced soon — <a href="#flock">join the mailing list</a> to hear first.</div>';
+    fetch('data/events.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+      var data=(j&&j.shows)?j.shows:[];
+      var today=new Date(); today.setHours(0,0,0,0);
+      var up=data.filter(function(e){return e&&e.date&&new Date(e.date+'T00:00:00')>=today;})
+                 .sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+      if(!up.length){el.innerHTML=empty;return;}
+      el.innerHTML=up.map(function(e){
+        var d=new Date(e.date+'T00:00:00');
+        var tix=e.tickets?('<a class="btn sm tix" href="'+e.tickets+'" target="_blank" rel="noopener">Tickets</a>'):'';
+        if(e.status&&/sold/i.test(e.status)) tix='<span class="tix soldout">Sold out</span>';
+        return '<div class="tour-row">'
+          +'<div class="date"><span class="d">'+d.getDate()+'</span><span class="m">'+months[d.getMonth()]+'</span><span class="y">'+d.getFullYear()+'</span></div>'
+          +'<div class="meta"><div class="show">'+e.title+(e.time?' · '+e.time:'')+'</div>'
+          +'<div class="venue">'+[e.venue,e.city].filter(Boolean).join(', ')+'</div></div>'
+          +tix+'</div>';
+      }).join('');
+    }).catch(function(){el.innerHTML=empty;});
   })();
 
   function postForm(form){
